@@ -104,6 +104,12 @@ module MarkdownLint
       :description => "JSON output",
       :boolean => true
 
+    option :junit,
+      :short => '-x',
+      :long => '--xml',
+      :description => "Junit Xml output",
+      :boolean => true
+
     def run(argv=ARGV)
       parse_options(argv)
 

@@ -87,7 +87,7 @@ module MarkdownLint
         status = 1
         error_lines.each do |line|
           line += doc.offset # Correct line numbers for any yaml front matter
-          if Config[:json]
+          if Config[:json] || Config[:junit]
             results << {
               'filename' => filename,
               'line' => line,
@@ -107,6 +107,30 @@ module MarkdownLint
     if Config[:json]
       require 'json'
       puts JSON.generate(results)
+    elsif Config[:junit]
+      output = ""
+      output << %{<?xml version="1.0" encoding="UTF-8"?>\n}
+      output << %{<testsuite}
+      output << %{ name="mdl"}
+      output << %{ failures="#{results.count}"}
+      output << %{>\n}
+      results.each do |result|
+        rule_or_alias = Config[:show_aliases] ? result['aliases'].first : result['rule']
+        output << %{<testcase}
+        output << %{ name="#{result['filename']}:#{result['line']}: #{rule_or_alias} #{result['description']}"}
+        output << %{ file="#{result['filename']}"}
+        output << %{>}
+          output << %{<failure}
+          output << %{ message="#{result['aliases'].first}"}
+          output << %{ type="#{result['rule']}"}
+          output << %{>\n}
+          output << %{#{result['filename']}:#{result['line']}: #{rule_or_alias} #{result['description']}\n\n}
+          output << %{A detailed description of the rules is available at https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md\n}
+          output << %{</failure>}
+        output << %{</testcase>\n}
+      end
+      output << %{</testsuite>\n}
+      puts output
     elsif status != 0
       puts "\nA detailed description of the rules is available at "\
            "https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md"

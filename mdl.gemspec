@@ -28,5 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '>= 1.12', '< 3'
   spec.add_development_dependency 'rake', '>= 11.2', '< 14'
   spec.add_development_dependency 'minitest', '~> 5.9'
+  spec.add_development_dependency 'nokogiri', '~> 1.10.5'
   spec.add_development_dependency 'pry', '~> 0.10'
 end

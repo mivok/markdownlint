@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="mdl" failures="1">
+  <testcase name="(stdin):3: MD024 Multiple headers with the same content" file="(stdin)">
+    <failure message="no-duplicate-header" type="MD024">
+      (stdin):3: MD024 Multiple headers with the same content
+
+      A detailed description of the rules is available at https://github.com/markdownlint/markdownlint/blob/master/docs/RULES.md
+    </failure>
+  </testcase>
+</testsuite>
