@@ -176,7 +176,7 @@ end
 rule "MD013", "Line length" do
   tags :line_length
   aliases 'line-length'
-  params :line_length => 80, :code_blocks => true, :tables => true
+  params :line_length => 80, :code_blocks => true, :tables => true, :style => :stern
   check do |doc|
     # Every line in the document that is part of a code block.
     codeblock_lines = doc.find_type_elements(:codeblock).map{
@@ -190,11 +190,33 @@ rule "MD013", "Line length" do
       |(l, e), i| (i + 1 < locations.size ?
                    (l..locations[i+1].first - 1) :
                    (l..doc.lines.count)).to_a if e.type == :table }.flatten
-    overlines = doc.matching_lines(/^.{#{@params[:line_length]}}.*\s/)
-    overlines -= codeblock_lines unless params[:code_blocks]
-    overlines -= table_lines unless params[:tables]
-    overlines
-  end
+    if params[:style] == :stern
+      violation_lines = doc.matching_lines(/^.{#{@params[:line_length]}}.*\s/)
+      violation_lines -= codeblock_lines unless params[:code_blocks]
+      violation_lines -= table_lines unless params[:tables]
+    elsif params[:style] == :not_wrapped
+      violation_lines = []
+      doc.lines.each_with_index do |text, linenum|
+        next_line = doc.lines[linenum + 1]
+        
+        if text.match(/.*[^\s]$/) and not next_line.nil? and not next_line.empty?
+          violation_lines << linenum + 1
+        end
+      end
+      violation_lines -= codeblock_lines
+      violation_lines -= table_lines
+      violation_lines -= doc.find_type_elements(:header).map { |h| doc.element_linenumber(h) }
+      violation_lines -= doc.find_type_elements(:ul)
+                      .map { |l| doc.find_type_elements(:li, true, l.children) }
+                      .flatten.map { |i| doc.element_linenumber(i) }
+      violation_lines -= doc.find_type_elements(:ol)
+                    .map { |l| doc.find_type_elements(:li, true, l.children) }
+                    .flatten.map { |i| doc.element_linenumber(i) }
+    else
+      raise "Line break style specified was not valid. Got '#{params[:style]}' but expected one of: 'wrapped', 'not_wrapped'."
+    end
+    violation_lines
+end
 end
 
 rule "MD014", "Dollar signs used before commands without showing output" do
