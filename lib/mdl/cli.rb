@@ -6,7 +6,8 @@ module MarkdownLint
   class CLI
     include Mixlib::CLI
 
-    CONFIG_FILE = '.mdlrc'.freeze
+    CONFIG_FILE = 'mdlrc'.freeze
+    CONFIG_DOT_FILE = '.'.freeze + CONFIG_FILE
 
     banner "Usage: #{File.basename($PROGRAM_NAME)} [options] [FILE.md|DIR ...]"
 
@@ -21,7 +22,7 @@ module MarkdownLint
            :short => '-c',
            :long => '--config FILE',
            :description => 'The configuration file to use',
-           :default => CONFIG_FILE.to_s
+           :default => CONFIG_DOT_FILE.to_s
 
     option :verbose,
            :short => '-v',
@@ -113,9 +114,13 @@ module MarkdownLint
       # Load the config file if it's present
       filename = CLI.probe_config_file(config[:config_file])
 
-      # Only fall back to ~/.mdlrc if we are using the default value for -c
-      if filename.nil? && (config[:config_file] == CONFIG_FILE)
-        filename = File.expand_path("~/#{CONFIG_FILE}")
+      # Only fall back to the global config if we are using the default value for -c
+      if filename.nil? && (config[:config_file] == CONFIG_DOT_FILE)
+        filename = [
+          File.expand_path("~/#{CONFIG_DOT_FILE}"),
+          File.join(ENV.fetch('XDG_CONFIG_HOME', File.expand_path('~/.config')),
+                    CONFIG_FILE)
+        ].find(&File.method(:exist?))
       end
 
       if !filename.nil? && File.exist?(filename)
