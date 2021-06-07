@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.executables = %w{mdl}
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 2.5'
 
   spec.add_dependency 'kramdown', '~> 2.3'
   spec.add_dependency 'kramdown-parser-gfm', '~> 1.1'
