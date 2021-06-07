@@ -3,11 +3,13 @@
   description: Run markdownlint on your Markdown files
   entry: mdl
   language: ruby
-  files: \.(md|mdown|markdown)$
+  types:
+    - markdown
 
 - id: markdownlint_docker
   name: Markdownlint Docker
   description: Run markdown lint on your Markdown files using the project docker image
   language: docker_image
-  files: \.(md|mdown|markdown)$
+  types:
+    - markdown
   entry: markdownlint/markdownlint
